@@ -1,0 +1,84 @@
+﻿<Window x:Class="PACMAN.LongTermAnalysis"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PACMAN"
+        mc:Ignorable="d"
+        Title="Long Term Analysis" Height="300" Width="800" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="10" />
+        </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0" Grid.Column="0" Header="MDS" x:Name="mdsGroup" Margin="10,5,5,5">
+            <telerik:RadComboBox x:Name="mdsSelect" Height="25px" Margin="5,0,5,0">
+                <telerik:RadComboBoxItem Content="F-35" />
+                <telerik:RadComboBoxItem Content="C-130" />
+                <telerik:RadComboBoxItem Content="F-15" />
+                <telerik:RadComboBoxItem Content="A-10" />
+            </telerik:RadComboBox>
+        </GroupBox>
+        <GroupBox Grid.Row="0" Grid.Column="1" Header="Aircraft" x:Name="aircraftGroup" Margin="5,5,5,5">
+            <StackPanel>
+                <RadioButton x:Name="singleAircraftButton" Content="Individual aircraft" Margin="5" Checked="singleAircraftButton_Checked"/>
+                <RadioButton x:Name="fleetAircraftButton" Content="Fleet" Margin="5" Checked="fleetAircraftButton_Checked"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Grid.Row="0" Grid.Column="2" Header="Scenario Type" x:Name="scenarioGroup" Margin="5,5,10,5">
+            <StackPanel>
+                <RadioButton Content="Diagnostic" Margin="5" IsChecked="True"/>
+                <RadioButton Content="Prognostic" Margin="5" IsEnabled="False"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="Individual Aircraft - Select Aircraft Tail" x:Name="individualGroup" Margin="10,5,5,5">
+            <telerik:RadComboBox x:Name="singleTailSelect" Height="25px" Margin="5,0,5,0">
+            </telerik:RadComboBox>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="Fleet - Select Aircraft Tails" x:Name="fleetGroup" Visibility="Hidden" Margin="10,5,5,5">
+            <telerik:RadComboBox x:Name="multiTailSelect"  
+                                         AllowMultipleSelection="True" Height="25px" Margin="5,0,5,0"/>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.Column="1" Header="Materials" x:Name="materialsGroup" Margin="5,5,5,5">
+            <StackPanel Margin="0,5,0,0">
+                <telerik:RadComboBox x:Name="materialSelect" Margin="5,0,5,0">
+                    <telerik:RadComboBoxItem Content="AA2024-T3" />
+                    <telerik:RadComboBoxItem Content="Steel" />
+                </telerik:RadComboBox>
+                <telerik:RadTreeView x:Name="materialTreeView" IsOptionElementsEnabled="True" IsTriStateMode="True">
+                    <telerik:RadTreeViewItem Header="Pr Inhibitor" x:Name="prSelect" Checked="prSelect_Checked" Unchecked="prSelect_Checked"/>
+                    <telerik:RadTreeViewItem Header="Ti fastners" x:Name="tiSelect" Checked="tiSelect_Checked" Unchecked="tiSelect_Checked"/>
+                    <telerik:RadTreeViewItem Header="Composite Panels" x:Name="cpSelect" Checked="cpSelect_Checked" Unchecked="cpSelect_Checked"/>
+                </telerik:RadTreeView>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.Column="2" Header="Diagnostic" x:Name="diagnosticGroup" Margin="5,5,10,5">
+            <StackPanel Margin="0,5,0,0">
+                <TextBlock Text="Start" Foreground="#FF000000" Margin="5,0,5,5"/>
+                <telerik:RadDateTimePicker x:Name="DiagnosticStartDate" Margin="5,0,5,0"/>
+                <TextBlock Text="End" Foreground="#FF000000" Margin="5,5,5,5"/>
+                <telerik:RadDateTimePicker x:Name="DiagnosticEndDate" Margin="5,0,5,0"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Grid.Column="2" Header="Prognostic" x:Name="prognosticGroup" Visibility="Hidden" Margin="5,5,10,5">
+            <StackPanel>
+                <TextBlock Text="Start" Foreground="#FF000000" />
+                <telerik:RadDateTimePicker x:Name="PrognosticStartDate" Margin="5,0,5,0" DisplayFormat="Short"/>
+                <TextBlock Text="End" Foreground="#FF000000" />
+                <telerik:RadDateTimePicker x:Name="PrognosticEndDate" Margin="5,0,5,0" DisplayFormat="Short"/>
+            </StackPanel>
+        </GroupBox>
+        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="2" Margin="5,0,10,0" Width="200">
+            <telerik:RadButton  Content="Submit" Click="Submit_Click" Height="25px" Width="80" Margin="5,0,5,0"/>
+            <telerik:RadButton Content="Cancel" Click="Cancel_Click" Height="25px" Width="80" Margin="5,0,5,0"/>
+        </StackPanel>
+    </Grid>
+</Window>

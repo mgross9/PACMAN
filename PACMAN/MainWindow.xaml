@@ -1,0 +1,341 @@
+﻿<Window x:Class="PACMAN.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PACMAN"
+        xmlns:fileDialogs="clr-namespace:Telerik.Windows.Controls.FileDialogs;assembly=Telerik.Windows.Controls.FileDialogs"
+        mc:Ignorable="d"
+        Title="PACMAN" Height="800" Width="1550" WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <SolidColorBrush x:Key="ContentForegroundBrush" Color="#FF020202" />
+            <SolidColorBrush x:Key="LabelBrush" Color="#767676" />
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <telerik:RadMenu VerticalAlignment="Top">
+            <telerik:RadMenuItem Header="Home" Click="RibbonHomeClick">
+            </telerik:RadMenuItem>
+            <telerik:RadMenuItem Header="Analysis Type">
+                <telerik:RadMenuItem Header="Single File Analysis" Click="RibbonSingleClick"/>
+                <!--<telerik:RadMenuItem Header="Long Term Analysis" Click="RibbonLongTermClick"/>-->
+            </telerik:RadMenuItem>
+            <telerik:RadMenuItem Header="Close" Click="RibbonCloseClick">
+            </telerik:RadMenuItem>
+        </telerik:RadMenu>
+
+        <telerik:RadDocking x:Name="radDocking1"
+                            RetainPaneSizeMode="DockingAndFloating"
+                            CanAutoHideAreaExceedScreen="True"
+                            Grid.Row="1" Margin="0 0 0 10" 
+                            BorderThickness="0"
+                            Padding="0">
+
+            <!--DocumentHost-->
+            <telerik:RadDocking.DocumentHost>
+                <telerik:RadSplitContainer>
+                    <telerik:RadPaneGroup>
+                        <telerik:RadDocumentPane Title="Description" x:Name="DescriptionPane">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3" Margin="10,10,10,0">
+                                    <TextBlock x:Name="InstructionText" TextWrapping="Wrap" Margin="0,10,0,10" Text="For the Single Analysis from file, choose a .csv file or a .txt file whose format matches a .csv file. The .csv file should be organized as follows:"/>
+                                    <TextBlock x:Name="InstructionTextTwo" TextWrapping="Wrap" Margin="0,10,0,10" Text="1st line: Title of the file. The contents of the first line will be used to give a name to the analysis, combined with the start and end dates of the data." />
+                                    <TextBlock x:Name="InstructionTextThree" TextWrapping="Wrap" Margin="0,10,0,10" Text="2nd line: Column headers. The contents of the second line are assumed to be column headers. The exact contents of this line will be discarded, but the columns should be in the following order: Record Number, TOW sensor, TOW calc, Surface Temp, Time Interval, ATM RH, ATM Temperature, Rain, Timestamp, Month, DataType (1 for sensor, 2 for met data)." />
+                                    <TextBlock x:Name="InstructionTextFour" TextWrapping="Wrap" Margin="0,10,0,10" Text="3+ line: Data. The contents of the file from line 3 and up is the actual data for the analysis. The data should be in an order matching the column order. There should be 11 entries per row. If there is no value for a column in a certain row, use 0 for numeric and NULL for non-numeric." />
+                                    <!--<TextBlock x:Name="InstructionTextFive" TextWrapping="Wrap" Margin="0,30,0,10" Text="For the Long Term analysis, select a MDS, select whether to model for an individual aircraft or for a fleet of aircraft, Select the Tail(s) you want to model for, select any relevent Materials, and lastly choose a date range to run the analysis over. When finished makeing all selections, click Submit." />-->
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Center" Width="280" Grid.Row="1" Grid.Column="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <telerik:Label x:Name="LoadingLabel" Content="Reading file" FontSize="13"
+						                HorizontalAlignment="Left" FontFamily="Segoe UI"/>
+                                        <telerik:Label x:Name="PercentageLabel" Content="10%" FontSize="13"
+						                HorizontalAlignment="Right" FontFamily="Segoe UI"/>
+                                    </StackPanel>
+                                    <telerik:RadProgressBar x:Name="LoadingBar" Minimum="0" Maximum="100"
+					                Width="280" Height="6" Margin="0,20" Value="10"/>
+                                </StackPanel>
+                            </Grid>
+                        </telerik:RadDocumentPane>
+                        <telerik:RadPane x:Name="DropletsPane" Header="Droplets" Visibility="Hidden">
+                            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto" >
+                                <telerik:RadCartesianChart Grid.Row="1" Palette="Windows8" Margin="6,0,0,0" x:Name="DropletsChart" DockPanel.Dock="Top"  Height="600px">
+                                <telerik:RadCartesianChart.Resources>
+                                    <DataTemplate x:Key="PointTemplate1">
+                                        <Ellipse Height="6" Width="6" Fill="#FF8EC441" />
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="PointTemplate2">
+                                        <Ellipse Height="6" Width="6" Fill="#FF1B9DDE" />
+                                    </DataTemplate>
+                                </telerik:RadCartesianChart.Resources>
+                                <telerik:RadCartesianChart.HorizontalAxis>
+                                        <telerik:CategoricalAxis SmartLabelsMode="SmartStep" MajorTickInterval="50"/>
+                                </telerik:RadCartesianChart.HorizontalAxis>
+                                <telerik:RadCartesianChart.VerticalAxis>
+                                    <telerik:LinearAxis />
+                                </telerik:RadCartesianChart.VerticalAxis>
+                                <telerik:RadCartesianChart.Grid>
+                                    <telerik:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y" />
+                                </telerik:RadCartesianChart.Grid>
+                            </telerik:RadCartesianChart>
+                                <telerik:RadButton Content="Download Droplets Points" Click="downloadDroplets_Click" DockPanel.Dock="Bottom" Height="50px" Margin="5,5,5,5" HorizontalAlignment="Right" Width="300px"/>
+                            </DockPanel>
+                        </telerik:RadPane>
+                        <telerik:RadPane x:Name="RelativeHumidityPane" Header="Relative Humidity" Visibility="Hidden">
+                            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
+                                <telerik:RadCartesianChart Grid.Row="1" Palette="Windows8" Margin="6,0,0,0" x:Name="RelativeHumidityChart" DockPanel.Dock="Top" Height="600px">
+                                <telerik:RadCartesianChart.Resources>
+                                    <DataTemplate x:Key="PointTemplate1">
+                                        <Ellipse Height="6" Width="6" Fill="#FF8EC441" />
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="PointTemplate2">
+                                        <Ellipse Height="6" Width="6" Fill="#FF1B9DDE" />
+                                    </DataTemplate>
+                                </telerik:RadCartesianChart.Resources>
+                                <telerik:RadCartesianChart.HorizontalAxis>
+                                        <telerik:DateTimeContinuousAxis MajorStep="3"
+                                                MajorStepUnit="Month"
+                                                LabelFormat="MMM yyyy"
+                                                LabelFitMode="MultiLine"
+                                                PlotMode="OnTicks" />
+                                    </telerik:RadCartesianChart.HorizontalAxis>
+                                <telerik:RadCartesianChart.VerticalAxis>
+                                    <telerik:LinearAxis />
+                                </telerik:RadCartesianChart.VerticalAxis>
+                                <telerik:RadCartesianChart.Grid>
+                                    <telerik:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y" />
+                                </telerik:RadCartesianChart.Grid>
+                            </telerik:RadCartesianChart>
+                                <telerik:RadButton Content="Download Relative Humidity Points" Click="downloadRelativeHumidity_Click" DockPanel.Dock="Bottom" Height="50px" Margin="5,5,5,5" HorizontalAlignment="Right" Width="300px"/>
+                            </DockPanel>
+                        </telerik:RadPane>
+                        <telerik:RadPane x:Name="TemperaturePane" Header="Temperature (C)" Visibility="Hidden">
+                            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
+                                <telerik:RadCartesianChart Grid.Row="1" Palette="Windows8" Margin="6,0,0,0" x:Name="TemperatureChart" DockPanel.Dock="Top" Height="600px">
+                                <telerik:RadCartesianChart.Resources>
+                                    <DataTemplate x:Key="PointTemplate1">
+                                        <Ellipse Height="6" Width="6" Fill="#FF8EC441" />
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="PointTemplate2">
+                                        <Ellipse Height="6" Width="6" Fill="#FF1B9DDE" />
+                                    </DataTemplate>
+                                </telerik:RadCartesianChart.Resources>
+                                <telerik:RadCartesianChart.HorizontalAxis>
+                                        <telerik:DateTimeContinuousAxis MajorStep="3"
+                                                MajorStepUnit="Month"
+                                                LabelFormat="MMM yyyy"
+                                                LabelFitMode="MultiLine"
+                                                PlotMode="OnTicks" />
+                                    </telerik:RadCartesianChart.HorizontalAxis>
+                                <telerik:RadCartesianChart.VerticalAxis>
+                                    <telerik:LinearAxis />
+                                </telerik:RadCartesianChart.VerticalAxis>
+                                <telerik:RadCartesianChart.Grid>
+                                    <telerik:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y" />
+                                </telerik:RadCartesianChart.Grid>
+                            </telerik:RadCartesianChart>
+                                <telerik:RadButton Content="Download Temperature Points" Click="downloadTemperature_Click" DockPanel.Dock="Bottom" Height="50px" Margin="5,5,5,5" HorizontalAlignment="Right" Width="300px"/>
+                            </DockPanel>
+                        </telerik:RadPane>
+                        <telerik:RadPane x:Name="PrecipitationPane" Header="Precipitation" Visibility="Hidden">
+                            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
+                                <telerik:RadCartesianChart Grid.Row="1" Palette="Windows8" Margin="6,0,0,0" x:Name="PrecipitationChart" DockPanel.Dock="Top" Height="600px">
+                                <telerik:RadCartesianChart.Resources>
+                                    <DataTemplate x:Key="PointTemplate1">
+                                        <Ellipse Height="6" Width="6" Fill="#FF8EC441" />
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="PointTemplate2">
+                                        <Ellipse Height="6" Width="6" Fill="#FF1B9DDE" />
+                                    </DataTemplate>
+                                </telerik:RadCartesianChart.Resources>
+                                <telerik:RadCartesianChart.HorizontalAxis>
+                                        <telerik:DateTimeContinuousAxis MajorStep="3"
+                                                MajorStepUnit="Month"
+                                                LabelFormat="MMM yyyy"
+                                                LabelFitMode="MultiLine"
+                                                PlotMode="OnTicks" />
+                                    </telerik:RadCartesianChart.HorizontalAxis>
+                                <telerik:RadCartesianChart.VerticalAxis>
+                                    <telerik:LinearAxis/>
+                                </telerik:RadCartesianChart.VerticalAxis>
+                                <telerik:RadCartesianChart.Grid>
+                                    <telerik:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y" />
+                                </telerik:RadCartesianChart.Grid>
+                            </telerik:RadCartesianChart>
+                                <telerik:RadButton Content="Download Precipitation Points" Click="downloadPrecipitation_Click" DockPanel.Dock="Bottom" Height="50px" Margin="5,5,5,5" HorizontalAlignment="Right" Width="300px"/>
+                            </DockPanel>
+                        </telerik:RadPane>
+                        <telerik:RadPane x:Name="SurfacePollutantsPane" Header="Surface Pollutants" Visibility="Hidden">
+                            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
+                                <telerik:RadCartesianChart Grid.Row="1" Palette="Windows8" Margin="6,0,0,0" x:Name="SurfacePollutantsChart" DockPanel.Dock="Top" Height="600px">
+                                <telerik:RadCartesianChart.Resources>
+                                    <DataTemplate x:Key="PointTemplate1">
+                                        <Ellipse Height="6" Width="6" Fill="#FF8EC441" />
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="PointTemplate2">
+                                        <Ellipse Height="6" Width="6" Fill="#FF1B9DDE" />
+                                    </DataTemplate>
+                                </telerik:RadCartesianChart.Resources>
+                                <telerik:RadCartesianChart.HorizontalAxis>
+                                        <telerik:DateTimeContinuousAxis MajorStep="3"
+                                                MajorStepUnit="Month"
+                                                LabelFormat="MMM yyyy"
+                                                LabelFitMode="MultiLine"
+                                                PlotMode="OnTicks" />
+                                    </telerik:RadCartesianChart.HorizontalAxis>
+                                <telerik:RadCartesianChart.VerticalAxis>
+                                    <telerik:LinearAxis />
+                                </telerik:RadCartesianChart.VerticalAxis>
+                                <telerik:RadCartesianChart.Grid>
+                                    <telerik:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y" />
+                                </telerik:RadCartesianChart.Grid>
+                            </telerik:RadCartesianChart>
+                                <telerik:RadButton Content="Download Surface Pollutants Points" Click="downloadSurfacePollutants_Click" DockPanel.Dock="Bottom" Height="50px" Margin="5,5,5,5" HorizontalAlignment="Right" Width="300px"/>
+                            </DockPanel>
+                        </telerik:RadPane>
+                        <telerik:RadPane x:Name="TimeOfWetnessPane" Header="Time of Wetness" Visibility="Hidden">
+                            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
+                                <telerik:RadCartesianChart Grid.Row="1" Palette="Windows8" Margin="6,0,0,0" x:Name="TimeOfWetnessChart" DockPanel.Dock="Top" Height="600px">
+                                <telerik:RadCartesianChart.Resources>
+                                    <DataTemplate x:Key="PointTemplate1">
+                                        <Ellipse Height="6" Width="6" Fill="#FF8EC441" />
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="PointTemplate2">
+                                        <Ellipse Height="6" Width="6" Fill="#FF1B9DDE" />
+                                    </DataTemplate>
+                                </telerik:RadCartesianChart.Resources>
+                                <telerik:RadCartesianChart.HorizontalAxis>
+                                        <telerik:DateTimeContinuousAxis MajorStep="3"
+                                                MajorStepUnit="Month"
+                                                LabelFormat="MMM yyyy"
+                                                LabelFitMode="MultiLine"
+                                                PlotMode="OnTicks" />
+                                    </telerik:RadCartesianChart.HorizontalAxis>
+                                <telerik:RadCartesianChart.VerticalAxis>
+                                    <telerik:LinearAxis />
+                                </telerik:RadCartesianChart.VerticalAxis>
+                                <telerik:RadCartesianChart.Grid>
+                                    <telerik:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y" />
+                                </telerik:RadCartesianChart.Grid>
+                            </telerik:RadCartesianChart>
+                                <telerik:RadButton Content="Download Time Of Wetness Points" Click="downloadTimeOfWetness_Click" DockPanel.Dock="Bottom" Height="50px" Margin="5,5,5,5" HorizontalAlignment="Right" Width="300px"/>
+                            </DockPanel>
+                        </telerik:RadPane>
+                        <telerik:RadPane x:Name="PitDistributionPane" Header="Pit Distribution" Visibility="Hidden">
+                            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
+                                <telerik:RadCartesianChart x:Name="PitDistributionChart" Palette="Windows8" Margin="0,18,0,0" DockPanel.Dock="Top" Height="600px">
+
+                                <telerik:RadCartesianChart.HorizontalAxis>
+                                    <telerik:CategoricalAxis FontFamily="Segoe UI"
+										   FontSize="12"/>
+                                </telerik:RadCartesianChart.HorizontalAxis>
+
+                                <telerik:RadCartesianChart.VerticalAxis>
+                                    <telerik:LinearAxis FontFamily="Segoe UI"
+									  FontSize="12" 
+									  Minimum="0"/>
+                                </telerik:RadCartesianChart.VerticalAxis>
+
+                            </telerik:RadCartesianChart>
+                                <telerik:RadButton Content="Download Pit Points" Click="downloadPit_Click" DockPanel.Dock="Bottom" Height="50px" Margin="5,5,5,5" HorizontalAlignment="Right" Width="300px"/>
+                            </DockPanel>
+                        </telerik:RadPane>
+                        <telerik:RadPane x:Name="SteelWeightLossPane" Header="Steel Weight Loss" Visibility="Hidden">
+                            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="Auto">
+                                <telerik:RadCartesianChart x:Name="SteelWeightLossChart" Grid.Row="1" Palette="Windows8" DockPanel.Dock="Top" Height="600px">
+                                <telerik:RadCartesianChart.Resources>
+                                    <DataTemplate x:Key="PointTemplate1">
+                                        <Ellipse Height="8" Width="8" Fill="#FF8EC441" />
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="PointTemplate2">
+                                        <Rectangle Height="8" Width="8" Fill="#FF1B9DDE" />
+                                    </DataTemplate>
+                                </telerik:RadCartesianChart.Resources>
+
+                                <telerik:RadCartesianChart.HorizontalAxis>
+                                    <telerik:LinearAxis Title="Days">
+
+                                    </telerik:LinearAxis>
+                                </telerik:RadCartesianChart.HorizontalAxis>
+                                
+                                <telerik:RadCartesianChart.VerticalAxis>
+                                    <telerik:LinearAxis Title="mm">
+
+                                    </telerik:LinearAxis>
+                                </telerik:RadCartesianChart.VerticalAxis>
+
+                            </telerik:RadCartesianChart>
+                                <telerik:RadButton Content="Download Steel Weight Loss Points" Click="downloadSteelWeightLoss_Click" DockPanel.Dock="Bottom" Height="50px" Margin="5,5,5,5" HorizontalAlignment="Right" Width="300px"/>
+                            </DockPanel>
+                        </telerik:RadPane>
+                        <telerik:RadPane x:Name="FleetAnalysisPane" Header="Fleet Analysis" Visibility="Hidden">
+                            <telerik:RadPane.Content>
+                                <telerik:RadGridView x:Name="FleetGridView" AutoGenerateColumns="False" ShowGroupPanel="False" ColumnWidth="*">
+                                    <telerik:RadGridView.Columns>
+                                        <telerik:GridViewDataColumn Header="MDS"
+											DataMemberBinding="{Binding MDS}" Width="Auto" />
+                                        <telerik:GridViewDataColumn Header="Tail Number"
+											DataMemberBinding="{Binding TailNumber}" Width="Auto" />
+                                        <telerik:GridViewDataColumn Header="Localized Corrosion" Width="Auto">
+                                            <telerik:GridViewDataColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <telerik:RadDataBar
+                                                            Value="{Binding LocalizedCorrosion}" 
+                                                            Maximum="100"  
+                                                            LabelVisibility="Collapsed" Height="18" ToolTip="{Binding LocalizedCorrosion}"/>
+                                                </DataTemplate>
+                                            </telerik:GridViewDataColumn.CellTemplate>
+                                        </telerik:GridViewDataColumn>
+                                        <telerik:GridViewDataColumn Header="Fatigue Damage" Width="Auto">
+                                            <telerik:GridViewDataColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <telerik:RadDataBar
+                                                            Value="{Binding FatigueDamage}" 
+                                                            Maximum="100" 
+                                                            LabelVisibility="Collapsed" Height="18" ToolTip="{Binding FatigueDamage}"/>
+                                                </DataTemplate>
+                                            </telerik:GridViewDataColumn.CellTemplate>
+                                        </telerik:GridViewDataColumn>
+                                    </telerik:RadGridView.Columns>
+                                </telerik:RadGridView>
+                            </telerik:RadPane.Content>
+                        </telerik:RadPane>
+                    </telerik:RadPaneGroup>
+                </telerik:RadSplitContainer>
+            </telerik:RadDocking.DocumentHost>
+
+            <telerik:RadSplitContainer telerik:DockingPanel.InitialSize="250,300"
+                    x:Name="TreeContainer" InitialPosition="DockedLeft">
+                <telerik:RadPaneGroup x:Name="Group1">
+                    <telerik:RadPane x:Name="TreePane" Header="Analysis Parameters">
+                    <telerik:RadPane.Content>
+                        <telerik:RadTreeView x:Name="ParameterTree">
+                            <telerik:RadTreeView.Items>
+                                    <telerik:RadTreeViewItem Header="Run the analysis to view parameters" />
+                                </telerik:RadTreeView.Items>
+                        </telerik:RadTreeView>
+                    </telerik:RadPane.Content>
+                </telerik:RadPane>
+                </telerik:RadPaneGroup>
+            </telerik:RadSplitContainer>
+        </telerik:RadDocking>
+    </Grid>
+</Window>
